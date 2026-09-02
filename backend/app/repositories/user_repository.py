@@ -16,3 +16,6 @@ class UserRepository:
         await self.db.commit()
         await self.db.refresh(user)
         return user
+
+    async def get_by_id(self, user_id: int) -> User | None:
+        return await self.db.get(User, user_id)

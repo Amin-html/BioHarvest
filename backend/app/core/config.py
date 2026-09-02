@@ -8,5 +8,6 @@ class Settings(BaseSettings):
     database_url: str
     jwt_secret: str
     jwt_access_ttl_min: int = 15
+    jwt_refresh_ttl_days: int = 30
 
 settings = Settings()
