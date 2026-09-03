@@ -5,6 +5,8 @@ from app.repositories.user_repository import UserRepository
 from app.repositories.refresh_token_repository import RefreshTokenRepository
 from app.services.auth_service import AuthService
 from app.schemas.user import UserRegisterIn, UserLoginIn, UserOut, TokenOut
+from app.core.dependencies import require_role, get_current_user
+from app.models.user import UserRole, User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -12,6 +14,10 @@ def get_auth_service(db: AsyncSession = Depends(get_db)) -> AuthService:
     return AuthService(UserRepository(db), RefreshTokenRepository(db))
 
 REFRESH_COOKIE = "refresh_token"
+
+@router.get("/me", response_model=UserOut)
+async def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
 
 @router.post("/register", response_model=UserOut)
 async def register(data: UserRegisterIn, service: AuthService = Depends(get_auth_service)):
