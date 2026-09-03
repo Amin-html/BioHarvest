@@ -6,3 +6,6 @@ class ProductService:
 
     async def list_products(self):
         return await self.repo.get_all()
+
+    async def create_product(self, data: dict):
+        return await self.repo.create(data)
