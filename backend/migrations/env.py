@@ -14,6 +14,8 @@ from app.models.stock import Stock
 from app.core.config import settings
 from app.models.user import User
 from app.models.refresh_token import RefreshToken
+from app.models.cart_item import CartItem
+from app.models.cart import Cart
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)
