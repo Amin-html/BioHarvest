@@ -16,3 +16,6 @@ class ProductRepository:
         await self.db.commit()
         await self.db.refresh(product)
         return product
+
+    async def get_by_id(self, product_id: int) -> Product | None:
+        return await self.db.get(Product, product_id)
