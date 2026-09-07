@@ -19,6 +19,8 @@ from app.models.cart import Cart
 from app.models.order import Order
 from app.models.order_item import OrderItem
 from app.models.order_status_history import OrderStatusHistory
+from app.models.delivery_zone import DeliveryZone
+from app.models.delivery_method import DeliveryMethod
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

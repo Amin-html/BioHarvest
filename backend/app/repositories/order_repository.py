@@ -28,13 +28,16 @@ class OrderRepository:
         return list(result.scalars().all())
 
     async def create_with_items(
-        self, user_id: int, idempotency_key: str, subtotal: float, total: float, items_data: list[dict]
+            self, user_id: int, idempotency_key: str, subtotal: float, total: float,
+            delivery_method_id: int | None, delivery_price: float, items_data: list[dict]
     ) -> Order:
         order = Order(
             user_id=user_id,
             idempotency_key=idempotency_key,
             subtotal=subtotal,
             total=total,
+            delivery_method_id=delivery_method_id,
+            delivery_price=delivery_price,
         )
         order.items = [OrderItem(**data) for data in items_data]
         self.db.add(order)

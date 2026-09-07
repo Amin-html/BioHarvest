@@ -22,3 +22,6 @@ class Order(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     items: Mapped[list["OrderItem"]] = relationship(back_populates="order", cascade="all, delete-orphan")
+
+    delivery_method_id: Mapped[int | None] = mapped_column(ForeignKey("delivery_methods.id"), nullable=True)
+    delivery_price: Mapped[float] = mapped_column(Numeric(10, 2), default=0, server_default="0")

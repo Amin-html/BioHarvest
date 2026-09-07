@@ -16,5 +16,7 @@ class OrderOut(BaseModel):
     status: str
     subtotal: float
     total: float
+    delivery_method_id: int | None
+    delivery_price: float
     created_at: datetime
     items: list[OrderItemOut]
