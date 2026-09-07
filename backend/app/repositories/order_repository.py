@@ -49,3 +49,8 @@ class OrderRepository:
         await self.db.commit()
         await self.db.refresh(order, attribute_names=["items"])
         return order
+
+    async def update_status(self, order: Order, new_status: str) -> None:
+        order.status = new_status
+        self.db.add(OrderStatusHistory(order_id=order.id, status=new_status))
+        await self.db.commit()

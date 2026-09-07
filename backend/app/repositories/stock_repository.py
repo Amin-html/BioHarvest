@@ -27,3 +27,12 @@ class StockRepository:
         stock.reserved_stock += quantity
         # commit делает вызывающий код (order_service) — резерв должен закоммититься
         # в той же транзакции, что и сам Order, иначе будет рассинхрон при сбое
+
+    async def release(self, product_id: int, quantity: int) -> None:
+        result = await self.db.execute(
+            select(Stock).where(Stock.product_id == product_id).with_for_update()
+        )
+        stock = result.scalar_one_or_none()
+        if stock is None:
+            return
+        stock.reserved_stock = max(0, stock.reserved_stock - quantity)

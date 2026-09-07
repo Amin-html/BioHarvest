@@ -73,3 +73,20 @@ class OrderService:
         await self.cart_repo.clear(cart.id)
 
         return order
+
+    async def cancel_order(self, user_id: int, order_id: int):
+        order = await self.order_repo.get_by_id(order_id)
+        if order is None or order.user_id != user_id:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Order not found")
+
+        if order.status in ("DELIVERED", "CANCELLED"):
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                f"Cannot cancel order in status {order.status}",
+            )
+
+        for item in order.items:
+            await self.stock_repo.release(item.product_id, item.quantity)
+
+        await self.order_repo.update_status(order, "CANCELLED")
+        return order

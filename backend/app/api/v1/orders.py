@@ -49,3 +49,11 @@ async def get_order(
     if order is None or order.user_id != current_user.id:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Order not found")
     return order
+
+@router.post("/{order_id}/cancel", response_model=OrderOut)
+async def cancel_order(
+        order_id: int,
+        current_user: User = Depends(get_current_user),
+        service: OrderService = Depends(get_order_service),
+):
+    return await service.cancel_order(current_user.id, order_id)
