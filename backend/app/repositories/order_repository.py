@@ -29,7 +29,9 @@ class OrderRepository:
 
     async def create_with_items(
             self, user_id: int, idempotency_key: str, subtotal: float, total: float,
-            delivery_method_id: int | None, delivery_price: float, items_data: list[dict]
+            delivery_method_id: int | None, delivery_price: float,
+            promo_code_id: int | None, discount_total: float,
+            items_data: list[dict]
     ) -> Order:
         order = Order(
             user_id=user_id,
@@ -38,10 +40,12 @@ class OrderRepository:
             total=total,
             delivery_method_id=delivery_method_id,
             delivery_price=delivery_price,
+            promo_code_id=promo_code_id,
+            discount_total=discount_total,
         )
         order.items = [OrderItem(**data) for data in items_data]
         self.db.add(order)
-        await self.db.flush()  # получаем order.id ДО коммита — нужен для OrderStatusHistory
+        await self.db.flush()
 
         history = OrderStatusHistory(order_id=order.id, status="CREATED")
         self.db.add(history)

@@ -21,6 +21,7 @@ from app.models.order_item import OrderItem
 from app.models.order_status_history import OrderStatusHistory
 from app.models.delivery_zone import DeliveryZone
 from app.models.delivery_method import DeliveryMethod
+from app.models.promo_code import PromoCode
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

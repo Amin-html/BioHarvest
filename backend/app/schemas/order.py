@@ -20,3 +20,5 @@ class OrderOut(BaseModel):
     delivery_price: float
     created_at: datetime
     items: list[OrderItemOut]
+    promo_code_id: int | None
+    discount_total: float
