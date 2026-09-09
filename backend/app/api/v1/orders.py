@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Header, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
-from app.core.dependencies import get_current_user
-from app.models.user import User
+from app.core.dependencies import get_current_user, require_role
+from app.models.user import User, UserRole
 from app.schemas.order import OrderOut
 from app.services.order_service import OrderService
 from app.repositories.cart_repository import CartRepository
@@ -11,8 +11,16 @@ from app.repositories.stock_repository import StockRepository
 from app.repositories.order_repository import OrderRepository
 from app.repositories.delivery_repository import DeliveryRepository
 from app.repositories.promo_code_repository import PromoCodeRepository
+from app.schemas.order import OrderStatusUpdateIn
 
 router = APIRouter(prefix="/orders", tags=["orders"])
+admin_router = APIRouter(
+    prefix="/admin/orders",
+    tags=["admin-orders"],
+    dependencies=[Depends(require_role(UserRole.STAFF, UserRole.ADMIN))],
+)
+
+
 
 def get_order_service(db: AsyncSession = Depends(get_db)) -> OrderService:
     return OrderService(
@@ -59,3 +67,15 @@ async def cancel_order(
         service: OrderService = Depends(get_order_service),
 ):
     return await service.cancel_order(current_user.id, order_id)
+
+@admin_router.get("/", response_model=list[OrderOut])
+async def list_all_orders(service: OrderService = Depends(get_order_service)):
+    return await service.order_repo.get_all()
+
+@admin_router.patch("/{order_id}/status", response_model=OrderOut)
+async def update_order_status(
+    order_id: int,
+    data: OrderStatusUpdateIn,
+    service: OrderService = Depends(get_order_service),
+):
+    return await service.admin_update_status(order_id, data.status)

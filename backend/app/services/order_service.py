@@ -8,6 +8,13 @@ from app.repositories.order_repository import OrderRepository
 from app.repositories.delivery_repository import DeliveryRepository
 from app.repositories.promo_code_repository import PromoCodeRepository
 
+VALID_TRANSITIONS = {
+    "CREATED": {"AWAITING_DELIVERY", "CANCELLED"},
+    "AWAITING_DELIVERY": {"DELIVERED", "CANCELLED"},
+    "DELIVERED": set(),
+    "CANCELLED": set(),
+}
+
 class OrderService:
     def __init__(
         self,
@@ -127,3 +134,23 @@ class OrderService:
 
         await self.promo_repo.increment_usage(promo)
         return discount, promo.id
+
+    async def admin_update_status(self, order_id: int, new_status: str):
+        order = await self.order_repo.get_by_id(order_id)
+        if order is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Order not found")
+
+        current = order.status.value if hasattr(order.status, "value") else order.status
+        if new_status not in VALID_TRANSITIONS.get(current, set()):
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                f"Invalid transition: {current} -> {new_status}",
+            )
+
+        # если админ отменяет заказ — освобождаем сток, как и в cancel_order
+        if new_status == "CANCELLED":
+            for item in order.items:
+                await self.stock_repo.release(item.product_id, item.quantity)
+
+        await self.order_repo.update_status(order, new_status)
+        return order

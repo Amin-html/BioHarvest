@@ -3,9 +3,10 @@ from app.api.v1.products import router as products_router
 from app.api.v1.category import router as category_router
 from app.api.v1.auth import router as authorization_router
 from app.api.v1.cart import router as cart_router
-from app.api.v1.orders import router as order_router
 from app.api.v1.delivery import router as delivery_router
 from app.api.v1.stock import router as stock_router
+from app.api.v1.orders import router as order_router, admin_router as admin_orders_router
+
 
 app = FastAPI(title="BioHarvest")
 app.include_router(products_router, prefix="/api/v1")
@@ -15,6 +16,7 @@ app.include_router(cart_router, prefix="/api/v1")
 app.include_router(order_router, prefix="/api/v1")
 app.include_router(delivery_router, prefix="/api/v1")
 app.include_router(stock_router, prefix="/api/v1")
+app.include_router(admin_orders_router, prefix="/api/v1")
 
 @app.get("/health/")
 async def health():

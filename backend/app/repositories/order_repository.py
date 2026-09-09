@@ -58,3 +58,7 @@ class OrderRepository:
         order.status = new_status
         self.db.add(OrderStatusHistory(order_id=order.id, status=new_status))
         await self.db.commit()
+
+    async def get_all(self) -> list[Order]:
+        result = await self.db.execute(select(Order).options(selectinload(Order.items)))
+        return list(result.scalars().all())
