@@ -50,14 +50,14 @@ class OrderRepository:
         history = OrderStatusHistory(order_id=order.id, status="CREATED")
         self.db.add(history)
 
-        await self.db.commit()
+        await self.db.flush()
         await self.db.refresh(order, attribute_names=["items"])
         return order
 
     async def update_status(self, order: Order, new_status: str) -> None:
         order.status = new_status
         self.db.add(OrderStatusHistory(order_id=order.id, status=new_status))
-        await self.db.commit()
+        await self.db.flush()
 
     async def get_all(self) -> list[Order]:
         result = await self.db.execute(select(Order).options(selectinload(Order.items)))

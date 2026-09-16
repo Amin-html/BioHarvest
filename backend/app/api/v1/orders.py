@@ -11,6 +11,7 @@ from app.repositories.stock_repository import StockRepository
 from app.repositories.order_repository import OrderRepository
 from app.repositories.delivery_repository import DeliveryRepository
 from app.repositories.promo_code_repository import PromoCodeRepository
+from app.repositories.notification_repository import NotificationRepository  # <-- ДОБАВЛЕНО
 from app.schemas.order import OrderStatusUpdateIn
 
 router = APIRouter(prefix="/orders", tags=["orders"])
@@ -21,7 +22,6 @@ admin_router = APIRouter(
 )
 
 
-
 def get_order_service(db: AsyncSession = Depends(get_db)) -> OrderService:
     return OrderService(
         cart_repo=CartRepository(db),
@@ -30,6 +30,7 @@ def get_order_service(db: AsyncSession = Depends(get_db)) -> OrderService:
         order_repo=OrderRepository(db),
         delivery_repo=DeliveryRepository(db),
         promo_repo=PromoCodeRepository(db),
+        notification_repo=NotificationRepository(db),  # <-- ТЕПЕРЬ ПЕРЕДАЕТСЯ КОРРЕКТНО
     )
 
 @router.post("/", response_model=OrderOut, status_code=status.HTTP_201_CREATED)

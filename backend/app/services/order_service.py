@@ -7,6 +7,7 @@ from app.repositories.stock_repository import StockRepository
 from app.repositories.order_repository import OrderRepository
 from app.repositories.delivery_repository import DeliveryRepository
 from app.repositories.promo_code_repository import PromoCodeRepository
+from app.repositories.notification_repository import NotificationRepository
 
 VALID_TRANSITIONS = {
     "CREATED": {"AWAITING_DELIVERY", "CANCELLED"},
@@ -24,6 +25,7 @@ class OrderService:
         order_repo: OrderRepository,
         delivery_repo: DeliveryRepository,
         promo_repo: PromoCodeRepository,
+        notification_repo: NotificationRepository,
     ):
         self.cart_repo = cart_repo
         self.product_repo = product_repo
@@ -31,6 +33,7 @@ class OrderService:
         self.order_repo = order_repo
         self.delivery_repo = delivery_repo
         self.promo_repo = promo_repo
+        self.notification_repo = notification_repo
 
     async def checkout(
             self,
@@ -93,6 +96,15 @@ class OrderService:
 
         await self.cart_repo.clear(cart.id)
 
+        # Отправка уведомления о создании заказа
+        await self.notification_repo.create(
+            user_id=user_id,
+            type="order_created",
+            payload={"order_id": order.id, "total": float(order.total)},
+        )
+
+        await self.notification_repo.db.commit()
+
         return order
 
     async def cancel_order(self, user_id: int, order_id: int):
@@ -110,6 +122,16 @@ class OrderService:
             await self.stock_repo.release(item.product_id, item.quantity)
 
         await self.order_repo.update_status(order, "CANCELLED")
+
+        # Отправка уведомления об отмене заказа пользователем
+        await self.notification_repo.create(
+            user_id=user_id,
+            type="order_cancelled",
+            payload={"order_id": order.id},
+        )
+
+        await self.notification_repo.db.commit()
+
         return order
 
     async def _validate_and_apply_promo(self, code: str | None, subtotal: float):
@@ -153,4 +175,14 @@ class OrderService:
                 await self.stock_repo.release(item.product_id, item.quantity)
 
         await self.order_repo.update_status(order, new_status)
+
+        # Отправка уведомления об изменении статуса админом
+        await self.notification_repo.create(
+            user_id=order.user_id,
+            type=f"order_status_{new_status.lower()}",
+            payload={"order_id": order.id, "status": new_status},
+        )
+
+        await self.notification_repo.db.commit()
+
         return order
