@@ -19,3 +19,14 @@ class ProductRepository:
 
     async def get_by_id(self, product_id: int) -> Product | None:
         return await self.db.get(Product, product_id)
+
+    async def update(self, product: Product, data: dict) -> Product:
+        for key, value in data.items():
+            setattr(product, key, value)
+        await self.db.flush()
+        await self.db.refresh(product)
+        return product
+
+    async def soft_delete(self, product: Product) -> None:
+        product.is_active = False
+        await self.db.flush()

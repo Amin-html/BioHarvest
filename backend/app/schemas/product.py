@@ -14,3 +14,9 @@ class ProductOut(BaseModel):
     slug: str
     price: float
     is_active: bool
+
+class ProductUpdateIn(BaseModel):
+    name: str | None = None
+    price: float | None = None
+    category_id: int | None = None
+    is_active: bool | None = None
