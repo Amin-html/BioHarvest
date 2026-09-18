@@ -9,3 +9,7 @@ class CategoryOut(BaseModel):
     id: int
     name: str
     slug: str
+
+class CategoryUpdateIn(BaseModel):
+    name: str | None = None
+    slug: str | None = None
