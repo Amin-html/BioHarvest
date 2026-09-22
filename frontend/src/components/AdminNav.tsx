@@ -12,6 +12,7 @@ export function AdminLayout() {
       <div className="flex gap-2 mb-6">
         <NavLink to="/admin/products" className={linkClass}>Товары</NavLink>
         <NavLink to="/admin/categories" className={linkClass}>Категории</NavLink>
+        <NavLink to="/admin/orders" className={linkClass}>Заказы</NavLink>
       </div>
       <Outlet />
     </div>

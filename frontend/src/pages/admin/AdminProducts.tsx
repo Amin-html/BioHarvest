@@ -107,9 +107,13 @@ function ProductRow({
   const [name, setName] = useState(product.name)
   const [price, setPrice] = useState(product.price)
   const [isActive, setIsActive] = useState(product.is_active)
+  const [categoryId, setCategoryId] = useState(product.category_id)
 
   async function handleSave() {
-    await updateProduct.mutateAsync({ id: product.id, data: { name, price: Number(price), is_active: isActive } })
+    await updateProduct.mutateAsync({
+      id: product.id,
+      data: { name, price: Number(price), is_active: isActive, category_id: categoryId },
+    })
     onSaved()
   }
 
@@ -124,6 +128,15 @@ function ProductRow({
           onChange={(e) => setPrice(Number(e.target.value))}
           className="border rounded-lg px-2 py-1 w-24"
         />
+        <select
+          value={categoryId}
+          onChange={(e) => setCategoryId(Number(e.target.value))}
+          className="border rounded-lg px-2 py-1"
+        >
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
         <label className="flex items-center gap-1 text-sm">
           <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
           активен

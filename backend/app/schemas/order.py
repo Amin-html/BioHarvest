@@ -16,6 +16,7 @@ class OrderItemOut(BaseModel):
 class OrderOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
+    user_id: int
     status: str
     subtotal: float
     total: float

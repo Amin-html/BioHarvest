@@ -14,7 +14,9 @@ export function CatalogPage() {
 
   if (isLoading) return <p className="text-gray-500">Загрузка каталога...</p>
 
-  const visible = (products ?? []).filter((p) => p.is_active)
+  const visible = (products ?? []).filter(
+  (p) => p.is_active && (categoryFilter === 'all' || p.category_id === categoryFilter),
+)
 
   function handleAdd(productId: number) {
     if (!user) {

@@ -13,6 +13,7 @@ class ProductOut(BaseModel):
     name: str
     slug: str
     price: float
+    category_id: int
     is_active: bool
 
 class ProductUpdateIn(BaseModel):

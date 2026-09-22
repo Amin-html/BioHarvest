@@ -17,6 +17,7 @@ export interface Product {
   name: string
   slug: string
   price: number
+  category_id: number
   is_active: boolean
 }
 
@@ -42,6 +43,7 @@ export interface OrderItem {
 
 export interface Order {
   id: number
+  user_id: number  
   status: 'CREATED' | 'AWAITING_DELIVERY' | 'DELIVERED' | 'CANCELLED'
   subtotal: number
   total: number
