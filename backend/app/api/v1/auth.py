@@ -7,6 +7,7 @@ from app.services.auth_service import AuthService
 from app.schemas.user import UserRegisterIn, UserLoginIn, UserOut, TokenOut
 from app.core.dependencies import require_role, get_current_user
 from app.models.user import UserRole, User
+from app.core.config import settings
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -27,9 +28,12 @@ async def register(data: UserRegisterIn, service: AuthService = Depends(get_auth
 async def login(data: UserLoginIn, response: Response, service: AuthService = Depends(get_auth_service)):
     access, raw_refresh = await service.login(data.email, data.password)
     response.set_cookie(
-        key=REFRESH_COOKIE, value=raw_refresh,
-        httponly=True, secure=True, samesite="strict",
+        key=REFRESH_COOKIE, value=raw_refresh,   # или new_raw_refresh в refresh()
+        httponly=True,
+        secure=not settings.debug,
+        samesite="lax" if settings.debug else "none",
         max_age=60 * 60 * 24 * 30,
+        path="/api/v1/auth",
     )
     return TokenOut(access_token=access)
 
@@ -41,8 +45,11 @@ async def refresh(request: Request, response: Response, service: AuthService = D
     access, new_raw_refresh = await service.refresh(raw_refresh)
     response.set_cookie(
         key=REFRESH_COOKIE, value=new_raw_refresh,
-        httponly=True, secure=True, samesite="strict",
+        httponly=True,
+        secure=not settings.debug,
+        samesite="lax" if settings.debug else "none",
         max_age=60 * 60 * 24 * 30,
+        path="/api/v1/auth",
     )
     return TokenOut(access_token=access)
 

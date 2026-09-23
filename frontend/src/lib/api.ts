@@ -1,7 +1,7 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios'
 
 export const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: import.meta.env.VITE_API_URL ?? '/api/v1',
   withCredentials: true,
 })
 
@@ -22,7 +22,11 @@ api.interceptors.request.use((config) => {
 let refreshPromise: Promise<string> | null = null
 
 async function refreshAccessToken(): Promise<string> {
-  const { data } = await axios.post('/api/v1/auth/refresh', {}, { withCredentials: true })
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_API_URL ?? '/api/v1'}/auth/refresh`,
+    {},
+    { withCredentials: true },
+  )
   setAccessToken(data.access_token)
   return data.access_token
 }

@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.core.config import settings
 from app.api.v1.products import router as products_router
 from app.api.v1.category import router as category_router
 from app.api.v1.auth import router as authorization_router
@@ -10,6 +12,15 @@ from app.api.v1.notifications import router as notification_router
 
 
 app = FastAPI(title="BioHarvest")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.allowed_origins_list,
+    allow_credentials=True,   # обязательно для httpOnly refresh-cookie
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(products_router, prefix="/api/v1")
 app.include_router(category_router, prefix="/api/v1")
 app.include_router(authorization_router, prefix="/api/v1")
