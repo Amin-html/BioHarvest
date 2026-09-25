@@ -50,7 +50,9 @@ api.interceptors.response.use(
         return api(original)
       } catch {
         setAccessToken(null)
-        window.location.href = '/login'
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login'
+        }
         return Promise.reject(error)
       }
     }

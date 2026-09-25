@@ -1,11 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../lib/api'
+import { useAuth } from '../context/AuthContext'
 import type { Cart } from '../types/api'
 
 export function useCart() {
+  const { user } = useAuth()
   return useQuery({
     queryKey: ['cart'],
     queryFn: async () => (await api.get<Cart>('/cart/')).data,
+    enabled: !!user,
   })
 }
 
