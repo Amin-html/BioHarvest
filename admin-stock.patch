@@ -1,0 +1,178 @@
+diff --git a/frontend/src/App.tsx b/frontend/src/App.tsx
+index 33c35b0..f53659d 100644
+--- a/frontend/src/App.tsx
++++ b/frontend/src/App.tsx
+@@ -13,6 +13,7 @@ import { NotificationsPage } from './pages/Notifications'
+ import { AdminProductsPage } from './pages/admin/AdminProducts'
+ import { AdminCategoriesPage } from './pages/admin/AdminCategories'
+ import { AdminOrdersPage } from './pages/admin/AdminOrders'
++import { AdminStockPage } from './pages/admin/AdminStock'
+ 
+ export default function App() {
+   return (
+@@ -36,6 +37,7 @@ export default function App() {
+             <Route path="products" element={<AdminProductsPage />} />
+             <Route path="categories" element={<AdminCategoriesPage />} />
+             <Route path="orders" element={<AdminOrdersPage />} />
++            <Route path="stock" element={<AdminStockPage />} />
+           </Route>
+         </Route>
+ 
+diff --git a/frontend/src/components/AdminNav.tsx b/frontend/src/components/AdminNav.tsx
+index 5be6c3f..e9a309d 100644
+--- a/frontend/src/components/AdminNav.tsx
++++ b/frontend/src/components/AdminNav.tsx
+@@ -13,6 +13,7 @@ export function AdminLayout() {
+         <NavLink to="/admin/products" className={linkClass}>Товары</NavLink>
+         <NavLink to="/admin/categories" className={linkClass}>Категории</NavLink>
+         <NavLink to="/admin/orders" className={linkClass}>Заказы</NavLink>
++        <NavLink to="/admin/stock" className={linkClass}>Склад</NavLink>
+       </div>
+       <Outlet />
+     </div>
+diff --git a/frontend/src/pages/admin/AdminStock.tsx b/frontend/src/pages/admin/AdminStock.tsx
+new file mode 100644
+index 0000000..32daa0a
+--- /dev/null
++++ b/frontend/src/pages/admin/AdminStock.tsx
+@@ -0,0 +1,140 @@
++import { useState } from 'react'
++import { useProducts } from '../../hooks/useCatalog'
++import { useStockForProducts, useCreateStock, useAdjustStock } from '../../hooks/useStock'
++import { Package, PackagePlus } from 'lucide-react'
++import type { Product, Stock } from '../../types/api'
++
++export function AdminStockPage() {
++  const { data: products, isLoading } = useProducts()
++  const productIds = products?.map((p) => p.id) ?? []
++  const stockQueries = useStockForProducts(productIds)
++
++  if (isLoading) return <p className="text-gray-500">Загрузка...</p>
++
++  return (
++    <div>
++      <p className="text-sm text-gray-500 mb-4">
++        Остатки хранятся отдельно от товара. Пока склад не создан — заказ с этим товаром не оформится
++        (backend — source of truth, резерв идёт через row-lock на таблице stock).
++      </p>
++      <div className="space-y-2">
++        {products?.map((product, i) => (
++          <StockRow key={product.id} product={product} stock={stockQueries[i]?.data ?? null} isLoading={stockQueries[i]?.isLoading} />
++        ))}
++      </div>
++    </div>
++  )
++}
++
++function StockRow({
++  product,
++  stock,
++  isLoading,
++}: {
++  product: Product
++  stock: Stock | null
++  isLoading?: boolean
++}) {
++  const createStock = useCreateStock()
++  const adjustStock = useAdjustStock()
++  const [initialQty, setInitialQty] = useState(0)
++  const [delta, setDelta] = useState('')
++  const [error, setError] = useState<string | null>(null)
++
++  async function handleCreate() {
++    setError(null)
++    try {
++      await createStock.mutateAsync({ product_id: product.id, current_stock: initialQty })
++    } catch (e: any) {
++      setError(e?.response?.data?.detail ?? 'Не удалось создать склад')
++    }
++  }
++
++  async function handleAdjust() {
++    setError(null)
++    const quantity = Number(delta)
++    if (!quantity) return
++    try {
++      await adjustStock.mutateAsync({ productId: product.id, quantity })
++      setDelta('')
++    } catch (e: any) {
++      setError(e?.response?.data?.detail ?? 'Не удалось изменить остаток')
++    }
++  }
++
++  return (
++    <div className="border rounded-xl p-3 bg-white">
++      <div className="flex items-center justify-between flex-wrap gap-2">
++        <div>
++          <p className="font-medium">{product.name}</p>
++          <p className="text-sm text-gray-500">{product.slug}</p>
++        </div>
++
++        {isLoading ? (
++          <p className="text-sm text-gray-400">...</p>
++        ) : stock === null ? (
++          <div className="flex items-end gap-2">
++            <div>
++              <label className="block text-xs text-gray-500 mb-1">Начальный остаток</label>
++              <input
++                type="number"
++                min={0}
++                value={initialQty}
++                onChange={(e) => setInitialQty(Number(e.target.value))}
++                className="border rounded-lg px-2 py-1.5 w-24"
++              />
++            </div>
++            <button
++              onClick={handleCreate}
++              disabled={createStock.isPending}
++              className="flex items-center gap-1.5 bg-emerald-600 text-white rounded-lg px-3 py-1.5 font-medium hover:bg-emerald-700 disabled:opacity-50"
++            >
++              <PackagePlus size={16} />
++              Создать склад
++            </button>
++          </div>
++        ) : (
++          <div className="flex items-end gap-4">
++            <div className="flex gap-4 text-sm">
++              <span>
++                <span className="text-gray-500">В наличии: </span>
++                <span className="font-medium">{stock.current_stock}</span>
++              </span>
++              <span>
++                <span className="text-gray-500">Резерв: </span>
++                <span className="font-medium">{stock.reserved_stock}</span>
++              </span>
++              <span>
++                <span className="text-gray-500">Доступно: </span>
++                <span className="font-medium text-emerald-700">
++                  {stock.current_stock - stock.reserved_stock}
++                </span>
++              </span>
++            </div>
++            <div className="flex items-end gap-2">
++              <div>
++                <label className="block text-xs text-gray-500 mb-1">+ / − количество</label>
++                <input
++                  type="number"
++                  value={delta}
++                  onChange={(e) => setDelta(e.target.value)}
++                  placeholder="напр. 20 или -5"
++                  className="border rounded-lg px-2 py-1.5 w-32"
++                />
++              </div>
++              <button
++                onClick={handleAdjust}
++                disabled={adjustStock.isPending || !delta}
++                className="flex items-center gap-1.5 bg-emerald-600 text-white rounded-lg px-3 py-1.5 font-medium hover:bg-emerald-700 disabled:opacity-50"
++              >
++                <Package size={16} />
++                Применить
++              </button>
++            </div>
++          </div>
++        )}
++      </div>
++      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
++    </div>
++  )
++}
