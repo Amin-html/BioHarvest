@@ -70,3 +70,10 @@ export interface Notification {
   status: string
   created_at: string
 }
+
+export interface Stock {
+  id: number
+  product_id: number
+  current_stock: number
+  reserved_stock: number
+}
