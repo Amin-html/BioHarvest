@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useProducts, useCategories } from '../hooks/useCatalog'
 import { useAddToCart } from '../hooks/useCart'
 import { useAuth } from '../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
+import { ImageOff } from 'lucide-react'
 
 export function CatalogPage() {
   const { data: products, isLoading } = useProducts()
@@ -51,19 +52,31 @@ export function CatalogPage() {
       )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {visible.map((p) => (
-          <div key={p.id} className="border rounded-xl p-4 flex flex-col gap-2 bg-white">
-            <span className="font-medium">{p.name}</span>
-            <span className="text-cyan-600 font-bold">{p.price} сом</span>
-            <button
-              onClick={() => handleAdd(p.id)}
-              disabled={addToCart.isPending}
-              className="mt-auto bg-emerald-600 text-white text-sm rounded-lg py-2 hover:bg-emerald-700 disabled:opacity-50"
-            >
-              В корзину
-            </button>
-          </div>
-        ))}
+        {visible.map((p) => {
+          const thumb = p.images[0]
+          return (
+            <div key={p.id} className="border rounded-xl p-4 flex flex-col gap-2 bg-white">
+              <Link to={`/products/${p.slug}`} className="flex flex-col gap-2">
+                <div className="aspect-square rounded-lg bg-gray-50 flex items-center justify-center overflow-hidden">
+                  {thumb ? (
+                    <img src={thumb.url} alt={p.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <ImageOff className="text-gray-300" size={28} />
+                  )}
+                </div>
+                <span className="font-medium">{p.name}</span>
+                <span className="text-cyan-600 font-bold">{p.price} сом</span>
+              </Link>
+              <button
+                onClick={() => handleAdd(p.id)}
+                disabled={addToCart.isPending}
+                className="mt-auto bg-emerald-600 text-white text-sm rounded-lg py-2 hover:bg-emerald-700 disabled:opacity-50"
+              >
+                В корзину
+              </button>
+            </div>
+          )
+        })}
       </div>
 
       {visible.length === 0 && <p className="text-gray-500">Товаров пока нет.</p>}

@@ -5,6 +5,7 @@ import { AdminLayout } from './components/AdminNav'
 import { LoginPage } from './pages/Login'
 import { RegisterPage } from './pages/Register'
 import { CatalogPage } from './pages/Catalog'
+import { ProductDetailsPage } from './pages/ProductDetails'
 import { CartPage } from './pages/Cart'
 import { CheckoutPage } from './pages/Checkout'
 import { OrdersPage } from './pages/Orders'
@@ -21,6 +22,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<CatalogPage />} />
         <Route path="/catalog" element={<CatalogPage />} />
+        <Route path="/products/:slug" element={<ProductDetailsPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 

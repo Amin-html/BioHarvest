@@ -9,6 +9,7 @@ from alembic import context
 
 from app.db.base import Base
 from app.models.product import Product
+from app.models.product_image import ProductImage
 from app.models.category import Category
 from app.models.stock import Stock
 from app.core.config import settings

@@ -12,13 +12,23 @@ export interface Category {
   slug: string
 }
 
+export interface ProductImage {
+  id: number
+  product_id: number
+  url: string
+  position: number
+  is_primary: boolean
+}
+
 export interface Product {
   id: number
   name: string
   slug: string
   price: number
   category_id: number
+  description: string | null
   is_active: boolean
+  images: ProductImage[]
 }
 
 export interface CartItem {

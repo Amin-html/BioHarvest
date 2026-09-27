@@ -5,9 +5,11 @@ import {
   useCreateProduct,
   useUpdateProduct,
   useDeleteProduct,
+  useAddProductImage,
+  useDeleteProductImage,
   type ProductCreateInput,
 } from '../../hooks/useAdminProducts'
-import { Pencil, Trash2, X, Check } from 'lucide-react'
+import { Pencil, Trash2, X, Check, Plus, ImageOff } from 'lucide-react'
 import type { Product } from '../../types/api'
 
 export function AdminProductsPage() {
@@ -117,45 +119,93 @@ function ProductRow({
     onSaved()
   }
 
-  if (editing) {
-    return (
-      <div className="flex items-center gap-2 border rounded-xl p-3 bg-emerald-50">
-        <input value={name} onChange={(e) => setName(e.target.value)} className="border rounded-lg px-2 py-1 flex-1" />
-        <input
-          type="number"
-          step="0.01"
-          value={price}
-          onChange={(e) => setPrice(Number(e.target.value))}
-          className="border rounded-lg px-2 py-1 w-24"
-        />
-        <select
-          value={categoryId}
-          onChange={(e) => setCategoryId(Number(e.target.value))}
-          className="border rounded-lg px-2 py-1"
-        >
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
-        <label className="flex items-center gap-1 text-sm">
-          <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
-          активен
-        </label>
-        <button onClick={handleSave} className="text-emerald-600 hover:text-emerald-800"><Check size={18} /></button>
-        <button onClick={onCancelEdit} className="text-gray-400 hover:text-gray-600"><X size={18} /></button>
-      </div>
-    )
+  return (
+    <div className={`border rounded-xl p-3 bg-white ${!product.is_active ? 'opacity-50' : ''}`}>
+      {editing ? (
+        <div className="flex items-center gap-2 bg-emerald-50 -m-3 p-3 rounded-xl">
+          <input value={name} onChange={(e) => setName(e.target.value)} className="border rounded-lg px-2 py-1 flex-1" />
+          <input
+            type="number"
+            step="0.01"
+            value={price}
+            onChange={(e) => setPrice(Number(e.target.value))}
+            className="border rounded-lg px-2 py-1 w-24"
+          />
+          <select
+            value={categoryId}
+            onChange={(e) => setCategoryId(Number(e.target.value))}
+            className="border rounded-lg px-2 py-1"
+          >
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+          <label className="flex items-center gap-1 text-sm">
+            <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
+            активен
+          </label>
+          <button onClick={handleSave} className="text-emerald-600 hover:text-emerald-800"><Check size={18} /></button>
+          <button onClick={onCancelEdit} className="text-gray-400 hover:text-gray-600"><X size={18} /></button>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-medium">{product.name} {!product.is_active && <span className="text-xs text-red-500">(неактивен)</span>}</p>
+            <p className="text-sm text-gray-500">{product.slug} — {product.price} сом</p>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={onEdit} className="text-gray-500 hover:text-emerald-600"><Pencil size={18} /></button>
+            <button onClick={onDelete} className="text-gray-500 hover:text-red-600"><Trash2 size={18} /></button>
+          </div>
+        </div>
+      )}
+      <ProductImagesManager product={product} />
+    </div>
+  )
+}
+
+function ProductImagesManager({ product }: { product: Product }) {
+  const addImage = useAddProductImage()
+  const deleteImage = useDeleteProductImage()
+  const [url, setUrl] = useState('')
+
+  async function handleAdd() {
+    if (!url.trim()) return
+    await addImage.mutateAsync({ productId: product.id, url: url.trim() })
+    setUrl('')
   }
 
   return (
-    <div className={`flex items-center justify-between border rounded-xl p-3 bg-white ${!product.is_active ? 'opacity-50' : ''}`}>
-      <div>
-        <p className="font-medium">{product.name} {!product.is_active && <span className="text-xs text-red-500">(неактивен)</span>}</p>
-        <p className="text-sm text-gray-500">{product.slug} — {product.price} сом</p>
-      </div>
-      <div className="flex gap-2">
-        <button onClick={onEdit} className="text-gray-500 hover:text-emerald-600"><Pencil size={18} /></button>
-        <button onClick={onDelete} className="text-gray-500 hover:text-red-600"><Trash2 size={18} /></button>
+    <div className="mt-3 pt-3 border-t flex items-center gap-3 flex-wrap">
+      {product.images.length === 0 ? (
+        <span className="text-xs text-gray-400 flex items-center gap-1"><ImageOff size={14} /> Нет фото</span>
+      ) : (
+        product.images.map((img) => (
+          <div key={img.id} className="relative group">
+            <img src={img.url} alt="" className="w-12 h-12 rounded-lg object-cover border" />
+            <button
+              onClick={() => deleteImage.mutate(img.id)}
+              className="absolute -top-1.5 -right-1.5 bg-white border rounded-full text-red-500 hover:text-red-700"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ))
+      )}
+      <div className="flex items-center gap-1 ml-auto">
+        <input
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="URL картинки"
+          className="border rounded-lg px-2 py-1 text-sm w-40"
+        />
+        <button
+          onClick={handleAdd}
+          disabled={addImage.isPending || !url.trim()}
+          className="text-emerald-600 hover:text-emerald-800 disabled:opacity-40"
+        >
+          <Plus size={18} />
+        </button>
       </div>
     </div>
   )

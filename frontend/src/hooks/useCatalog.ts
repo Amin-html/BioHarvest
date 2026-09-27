@@ -9,6 +9,14 @@ export function useProducts() {
   })
 }
 
+export function useProduct(slug: string | undefined) {
+  return useQuery({
+    queryKey: ['product', slug],
+    queryFn: async () => (await api.get<Product>(`/products/${slug}`)).data,
+    enabled: !!slug,
+  })
+}
+
 export function useCategories() {
   return useQuery({
     queryKey: ['categories'],

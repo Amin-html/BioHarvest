@@ -2,8 +2,10 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.repositories.product_repository import ProductRepository
+from app.repositories.product_image_repository import ProductImageRepository
 from app.services.product_service import ProductService
 from app.schemas.product import ProductOut, ProductCreateIn, ProductUpdateIn
+from app.schemas.product_image import ProductImageOut, ProductImageCreateIn
 from app.core.dependencies import require_role
 from app.models.user import UserRole
 
@@ -13,6 +15,11 @@ router = APIRouter(prefix="/products", tags=["products"])
 async def list_products(db: AsyncSession = Depends(get_db)):
     service = ProductService(ProductRepository(db))
     return await service.list_products()
+
+@router.get("/{slug}", response_model=ProductOut)
+async def get_product_by_slug(slug: str, db: AsyncSession = Depends(get_db)):
+    service = ProductService(ProductRepository(db))
+    return await service.get_by_slug(slug)
 
 @router.post("/", response_model=ProductOut, status_code=201,
              dependencies=[Depends(require_role(UserRole.STAFF, UserRole.ADMIN))])
@@ -41,3 +48,12 @@ async def delete_product(
     service = ProductService(ProductRepository(db))
     await service.delete_product(product_id)
     await db.commit()
+@router.post("/{product_id}/images", response_model=ProductImageOut, status_code=201,
+             dependencies=[Depends(require_role(UserRole.STAFF, UserRole.ADMIN))])
+async def add_product_image(product_id: int, data: ProductImageCreateIn, db: AsyncSession = Depends(get_db)):
+    return await ProductImageRepository(db).create(product_id, data.model_dump())
+
+@router.delete("/images/{image_id}", status_code=status.HTTP_204_NO_CONTENT,
+               dependencies=[Depends(require_role(UserRole.STAFF, UserRole.ADMIN))])
+async def delete_product_image(image_id: int, db: AsyncSession = Depends(get_db)):
+    await ProductImageRepository(db).delete(image_id)

@@ -9,6 +9,12 @@ class ProductService:
     async def list_products(self):
         return await self.repo.get_all()
 
+    async def get_by_slug(self, slug: str) -> Product:
+        product = await self.repo.get_by_slug(slug)
+        if product is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Product not found")
+        return product
+
     async def create_product(self, data: dict):
         return await self.repo.create(data)
 
