@@ -12,6 +12,7 @@ class Product(Base):
     slug: Mapped[str] = mapped_column(unique=True)
     description: Mapped[str | None] = mapped_column(default=None)
     price: Mapped[float] = mapped_column(Numeric(10, 2))
-    is_active: Mapped[bool] = mapped_column(default=True)    images: Mapped[list["ProductImage"]] = relationship(
+    is_active: Mapped[bool] = mapped_column(default=True)
+    images: Mapped[list["ProductImage"]] = relationship(
         back_populates="product", cascade="all, delete-orphan", order_by="ProductImage.position"
     )
