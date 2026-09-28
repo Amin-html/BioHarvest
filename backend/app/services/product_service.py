@@ -15,6 +15,22 @@ class ProductService:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Product not found")
         return product
 
+    async def search_products(
+        self,
+        *,
+        q: str | None,
+        category_id: int | None,
+        min_price: float | None,
+        max_price: float | None,
+        sort: str | None,
+        page: int,
+        page_size: int,
+    ):
+        return await self.repo.search(
+            q=q, category_id=category_id, min_price=min_price, max_price=max_price,
+            sort=sort, page=page, page_size=page_size,
+        )
+
     async def create_product(self, data: dict):
         return await self.repo.create(data)
 
@@ -28,4 +44,4 @@ class ProductService:
         product = await self.repo.get_by_id(product_id)   # было self.product_repo
         if product is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Product not found")
-        await self.repo.soft_delete(product)               # было self.product_repo
+        await self.repo.soft_delete(product)               # было self.product_repo

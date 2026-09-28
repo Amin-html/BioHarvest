@@ -31,6 +31,13 @@ export interface Product {
   images: ProductImage[]
 }
 
+export interface ProductListOut {
+  items: Product[]
+  total: number
+  page: number
+  page_size: number
+}
+
 export interface CartItem {
   id: number
   product_id: number
@@ -86,4 +93,4 @@ export interface Stock {
   product_id: number
   current_stock: number
   reserved_stock: number
-}
+}

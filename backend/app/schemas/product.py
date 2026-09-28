@@ -26,3 +26,9 @@ class ProductUpdateIn(BaseModel):
     category_id: int | None = None
     description: str | None = None
     is_active: bool | None = None
+
+class ProductListOut(BaseModel):
+    items: list[ProductOut]
+    total: int
+    page: int
+    page_size: int
