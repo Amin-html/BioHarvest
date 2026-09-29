@@ -1,4 +1,4 @@
-export type UserRole = 'CUSTOMER' | 'STAFF' | 'ADMIN'
+  export type UserRole = 'CUSTOMER' | 'STAFF' | 'ADMIN'
 
 export interface User {
   id: number
@@ -93,4 +93,4 @@ export interface Stock {
   product_id: number
   current_stock: number
   reserved_stock: number
-}
+}

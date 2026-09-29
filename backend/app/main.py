@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.core.security_headers import SecurityHeadersMiddleware
 from app.api.v1.products import router as products_router
 from app.api.v1.category import router as category_router
 from app.api.v1.auth import router as authorization_router
@@ -21,6 +22,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_middleware(SecurityHeadersMiddleware)
+
 app.include_router(products_router, prefix="/api/v1")
 app.include_router(category_router, prefix="/api/v1")
 app.include_router(authorization_router, prefix="/api/v1")
@@ -35,4 +38,4 @@ app.include_router(notification_router, prefix="/api/v1")
 async def health():
     return {
         "status": "ok"
-    }
+    }
