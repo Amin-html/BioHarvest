@@ -1,61 +1,79 @@
-import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios'
+import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? '/api/v1',
+  baseURL: import.meta.env.VITE_API_URL ?? "/api/v1",
   withCredentials: true,
-})
+});
 
-let accessToken: string | null = null
+let accessToken: string | null = null;
 
 export function setAccessToken(token: string | null) {
-  accessToken = token
+  accessToken = token;
 }
 export function getAccessToken() {
-  return accessToken
+  return accessToken;
 }
 
 api.interceptors.request.use((config) => {
-  if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`
-  return config
-})
+  if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
+  return config;
+});
 
-let refreshPromise: Promise<string> | null = null
+let refreshPromise: Promise<string> | null = null;
 
 async function refreshAccessToken(): Promise<string> {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_API_URL ?? '/api/v1'}/auth/refresh`,
+    `${import.meta.env.VITE_API_URL ?? "/api/v1"}/auth/refresh`,
     {},
     { withCredentials: true },
-  )
-  setAccessToken(data.access_token)
-  return data.access_token
+  );
+  setAccessToken(data.access_token);
+  return data.access_token;
 }
 
 interface RetryConfig extends InternalAxiosRequestConfig {
-  _retried?: boolean
+  _retried?: boolean;
+}
+
+const AUTH_ENDPOINTS_WITHOUT_RETRY = [
+  "/auth/login",
+  "/auth/register",
+  "/auth/refresh",
+];
+
+function isAuthEndpoint(url: string | undefined): boolean {
+  if (!url) return false;
+  return AUTH_ENDPOINTS_WITHOUT_RETRY.some((path) => url.includes(path));
 }
 
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const original = error.config as RetryConfig | undefined
-    if (error.response?.status === 401 && original && !original._retried) {
-      original._retried = true
+    const original = error.config as RetryConfig | undefined;
+    if (
+      error.response?.status === 401 &&
+      original &&
+      !original._retried &&
+      !isAuthEndpoint(original.url)
+    ) {
+      original._retried = true;
       try {
         if (!refreshPromise) {
-          refreshPromise = refreshAccessToken().finally(() => { refreshPromise = null })
+          refreshPromise = refreshAccessToken().finally(() => {
+            refreshPromise = null;
+          });
         }
-        const newToken = await refreshPromise
-        original.headers.Authorization = `Bearer ${newToken}`
-        return api(original)
+        const newToken = await refreshPromise;
+        original.headers.Authorization = `Bearer ${newToken}`;
+        return api(original);
       } catch {
-        setAccessToken(null)
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login'
+        setAccessToken(null);
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
         }
-        return Promise.reject(error)
+        return Promise.reject(error);
       }
     }
-    return Promise.reject(error)
+    return Promise.reject(error);
   },
-)
+);
