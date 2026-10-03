@@ -10,6 +10,8 @@ from alembic import context
 from app.db.base import Base
 from app.models.product import Product
 from app.models.product_image import ProductImage
+from app.models.wishlist_item import WishlistItem
+from app.models.review import Review
 from app.models.category import Category
 from app.models.stock import Stock
 from app.core.config import settings
@@ -71,4 +73,4 @@ def run_migrations_online() -> None:
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    run_migrations_online()
+    run_migrations_online()

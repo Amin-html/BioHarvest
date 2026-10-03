@@ -1,5 +1,5 @@
 import { Link, Outlet } from 'react-router-dom'
-import { ShoppingCart, Bell, User as UserIcon, Leaf } from 'lucide-react'
+import { ShoppingCart, Bell, User as UserIcon, Leaf, Heart } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../hooks/useCart'
 import { useNotifications } from '../hooks/useNotifications'
@@ -27,6 +27,9 @@ export function Layout() {
             {user && (
               <>
                 <Link to="/orders" className="hover:text-emerald-600">Заказы</Link>
+                <Link to="/wishlist" className="hover:text-emerald-600">
+                  <Heart size={18} />
+                </Link>
                 <Link to="/notifications" className="relative hover:text-emerald-600">
                   <Bell size={18} />
                   {pendingCount > 0 && (
@@ -66,4 +69,4 @@ export function Layout() {
       </main>
     </div>
   )
-}
+}
