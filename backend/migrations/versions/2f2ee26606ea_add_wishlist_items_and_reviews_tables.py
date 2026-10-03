@@ -9,7 +9,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-
+from sqlalchemy.dialects import postgresql  # Импортируем PG-специфичный ENUM
 
 # revision identifiers, used by Alembic.
 revision: str = '2f2ee26606ea'
@@ -30,8 +30,16 @@ def upgrade() -> None:
     sa.UniqueConstraint('user_id', 'product_id', name='uq_wishlist_user_product'),
     )
 
-    review_status = sa.Enum('PENDING', 'APPROVED', 'REJECTED', name='reviewstatus')
-    review_status.create(op.get_bind(), checkfirst=True)
+    # Используем postgresql.ENUM с параметром create_type=False.
+    # Это предотвратит автоматический вызов CREATE TYPE внутри create_table.
+    review_status = postgresql.ENUM('PENDING', 'APPROVED', 'REJECTED', name='reviewstatus', create_type=False)
+
+    # Создаем тип вручную только в том случае, если его нет в базе данных
+    try:
+        bind = op.get_bind()
+        sa.Enum('PENDING', 'APPROVED', 'REJECTED', name='reviewstatus').create(bind, checkfirst=True)
+    except Exception:
+        pass
 
     op.create_table('reviews',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -40,7 +48,7 @@ def upgrade() -> None:
     sa.Column('rating', sa.Integer(), nullable=False),
     sa.Column('comment', sa.String(), nullable=True),
     sa.Column('is_verified_purchase', sa.Boolean(), nullable=False),
-    sa.Column('status', review_status, nullable=False),
+    sa.Column('status', review_status, nullable=False),  # Используем безопасный ENUM
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.CheckConstraint('rating >= 1 AND rating <= 5', name='ck_review_rating_range'),
     sa.ForeignKeyConstraint(['product_id'], ['products.id']),
@@ -55,5 +63,11 @@ def downgrade() -> None:
     """Downgrade schema."""
     op.drop_index(op.f('ix_reviews_product_id'), table_name='reviews')
     op.drop_table('reviews')
-    sa.Enum(name='reviewstatus').drop(op.get_bind(), checkfirst=True)
+
+    # Безопасное удаление типа при откате миграции
+    try:
+        sa.Enum(name='reviewstatus').drop(op.get_bind(), checkfirst=True)
+    except Exception:
+        pass
+
     op.drop_table('wishlist_items')
