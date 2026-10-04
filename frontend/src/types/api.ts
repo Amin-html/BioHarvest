@@ -116,6 +116,39 @@ export interface Review {
   created_at: string
 }
 
+export interface OrdersByStatus {
+  status: string
+  count: number
+}
+
+export interface RevenuePoint {
+  date: string
+  revenue: number
+}
+
+export interface TopProduct {
+  product_id: number
+  name: string
+  quantity_sold: number
+  revenue: number
+}
+
+export interface LowStockItem {
+  product_id: number
+  name: string
+  available: number
+}
+
+export interface DashboardSummary {
+  total_revenue: number
+  total_orders: number
+  total_customers: number
+  orders_by_status: OrdersByStatus[]
+  revenue_last_30_days: RevenuePoint[]
+  top_products: TopProduct[]
+  low_stock: LowStockItem[]
+}
+
 export interface ReviewSummary {
   average_rating: number | null
   count: number

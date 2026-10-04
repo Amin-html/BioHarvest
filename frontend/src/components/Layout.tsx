@@ -39,7 +39,7 @@ export function Layout() {
                   )}
                 </Link>
                 {(user.role === 'ADMIN' || user.role === 'STAFF') && (
-                  <Link to="/admin/products" className="hover:text-emerald-600">Админ</Link>
+                  <Link to="/admin" className="hover:text-emerald-600">Админ</Link>
                 )}
               </>
             )}

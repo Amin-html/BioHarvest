@@ -10,6 +10,7 @@ export function AdminLayout() {
     <div>
       <h1 className="text-2xl font-bold text-emerald-700 mb-4">Админ-панель</h1>
       <div className="flex gap-2 mb-6">
+        <NavLink to="/admin" end className={linkClass}>Обзор</NavLink>
         <NavLink to="/admin/products" className={linkClass}>Товары</NavLink>
         <NavLink to="/admin/categories" className={linkClass}>Категории</NavLink>
         <NavLink to="/admin/orders" className={linkClass}>Заказы</NavLink>

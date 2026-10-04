@@ -16,6 +16,7 @@ import { AdminCategoriesPage } from './pages/admin/AdminCategories'
 import { AdminOrdersPage } from './pages/admin/AdminOrders'
 import { AdminStockPage } from './pages/admin/AdminStock'
 import { AdminReviewsPage } from './pages/admin/AdminReviews'
+import { AdminDashboardPage } from './pages/admin/AdminDashboard'
 import { WishlistPage } from './pages/Wishlist'
 
 export default function App() {
@@ -39,6 +40,7 @@ export default function App() {
 
         <Route element={<ProtectedRoute roles={['ADMIN', 'STAFF']} />}>
           <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboardPage />} />
             <Route path="products" element={<AdminProductsPage />} />
             <Route path="categories" element={<AdminCategoriesPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
