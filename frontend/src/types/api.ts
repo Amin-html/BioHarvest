@@ -165,4 +165,35 @@ export interface ReviewSummary {
   average_rating: number | null
   count: number
   items: Review[]
-}
+}
+
+export interface Crop {
+  id: number
+  name: string
+  slug: string
+}
+
+export type AreaUnit = 'sotka' | 'hectare' | 'm2'
+
+export interface FertilizerNorm {
+  id: number
+  fertilizer_name: string
+  stage: string
+  dosage_per_sotka_kg: number
+  note: string | null
+  recommended_product: Product | null
+}
+
+export interface FertilizerCalculationItem {
+  fertilizer_name: string
+  stage: string
+  note: string | null
+  amount_kg: number
+  recommended_product: Product | null
+}
+
+export interface FertilizerCalculation {
+  crop: Crop
+  area_sotka: number
+  items: FertilizerCalculationItem[]
+}

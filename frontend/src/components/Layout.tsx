@@ -1,5 +1,5 @@
 import { Link, Outlet } from 'react-router-dom'
-import { ShoppingCart, Bell, User as UserIcon, Leaf, Heart } from 'lucide-react'
+import { ShoppingCart, Bell, User as UserIcon, Leaf, Heart, Sprout } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../hooks/useCart'
 import { useNotifications } from '../hooks/useNotifications'
@@ -42,6 +42,9 @@ export function Layout() {
                 {(user.role === 'ADMIN' || user.role === 'STAFF') && (
                   <Link to="/admin" className="hover:text-emerald-600">Админ</Link>
                 )}
+                <Link to="/fertilizer-calculator" className="hover:text-emerald-600 flex items-center gap-1">
+                  <Sprout size={18} />
+                </Link>
               </>
             )}
 
@@ -70,4 +73,4 @@ export function Layout() {
       </main>
     </div>
   )
-}
+}

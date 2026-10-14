@@ -27,6 +27,8 @@ from app.models.delivery_zone import DeliveryZone
 from app.models.delivery_method import DeliveryMethod
 from app.models.promo_code import PromoCode
 from app.models.notification import Notification
+from app.models.crop import Crop
+from app.models.fertilizer_norm import FertilizerNorm
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)
@@ -74,4 +76,4 @@ def run_migrations_online() -> None:
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    run_migrations_online()
+    run_migrations_online()

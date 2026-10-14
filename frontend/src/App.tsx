@@ -19,6 +19,7 @@ import { AdminReviewsPage } from './pages/admin/AdminReviews'
 import { AdminDashboardPage } from './pages/admin/AdminDashboard'
 import { WishlistPage } from './pages/Wishlist'
 import { ProfilePage } from './pages/Profile'
+import { FertilizerCalculatorPage } from './pages/FertilizerCalculator'
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/" element={<CatalogPage />} />
         <Route path="/catalog" element={<CatalogPage />} />
         <Route path="/products/:slug" element={<ProductDetailsPage />} />
+        <Route path="/fertilizer-calculator" element={<FertilizerCalculatorPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
@@ -55,4 +57,4 @@ export default function App() {
       </Route>
     </Routes>
   )
-}
+}
