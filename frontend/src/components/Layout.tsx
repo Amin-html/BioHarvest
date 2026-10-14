@@ -27,6 +27,9 @@ export function Layout() {
             {user && (
               <>
                 <Link to="/orders" className="hover:text-emerald-600">Заказы</Link>
+                <Link to="/fertilizer-calculator" className="hover:text-emerald-600 flex items-center gap-1">
+                  <Sprout size={18} />
+                </Link>
                 <Link to="/profile" className="hover:text-emerald-600">Профиль</Link>
                 <Link to="/wishlist" className="hover:text-emerald-600">
                   <Heart size={18} />
@@ -42,9 +45,6 @@ export function Layout() {
                 {(user.role === 'ADMIN' || user.role === 'STAFF') && (
                   <Link to="/admin" className="hover:text-emerald-600">Админ</Link>
                 )}
-                <Link to="/fertilizer-calculator" className="hover:text-emerald-600 flex items-center gap-1">
-                  <Sprout size={18} />
-                </Link>
               </>
             )}
 
