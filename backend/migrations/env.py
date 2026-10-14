@@ -12,6 +12,7 @@ from app.models.product import Product
 from app.models.product_image import ProductImage
 from app.models.wishlist_item import WishlistItem
 from app.models.review import Review
+from app.models.address import Address
 from app.models.category import Category
 from app.models.stock import Stock
 from app.core.config import settings

@@ -16,3 +16,5 @@ class User(Base):
     password_hash: Mapped[str]
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.CUSTOMER)
     is_active: Mapped[bool] = mapped_column(default=True)
+    full_name: Mapped[str | None] = mapped_column(default=None)
+    phone: Mapped[str | None] = mapped_column(default=None)

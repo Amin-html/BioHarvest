@@ -19,10 +19,11 @@ export function useDeliveryMethods() {
 export function useCheckout() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (vars: { deliveryMethodId?: number; promoCode?: string }) => {
+    mutationFn: async (vars: { deliveryMethodId?: number; promoCode?: string; addressId?: number }) => {
       const params = new URLSearchParams()
       if (vars.deliveryMethodId) params.set('delivery_method_id', String(vars.deliveryMethodId))
       if (vars.promoCode) params.set('promo_code', vars.promoCode)
+      if (vars.addressId) params.set('address_id', String(vars.addressId))
       const { data } = await api.post<Order>(`/orders/?${params.toString()}`, null, {
         headers: { 'Idempotency-Key': crypto.randomUUID() },
       })
@@ -46,4 +47,4 @@ export function useCancelOrder() {
       qc.invalidateQueries({ queryKey: ['notifications'] })
     },
   })
-}
+}

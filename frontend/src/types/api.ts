@@ -4,6 +4,17 @@ export interface User {
   id: number
   email: string
   role: UserRole
+  full_name: string | null
+  phone: string | null
+}
+
+export interface Address {
+  id: number
+  label: string | null
+  full_address: string
+  city: string | null
+  phone: string | null
+  is_default: boolean
 }
 
 export interface Category {
@@ -66,6 +77,7 @@ export interface Order {
   total: number
   delivery_method_id: number | null
   delivery_price: number
+  delivery_address: string | null
   created_at: string
   items: OrderItem[]
   promo_code_id: number | null

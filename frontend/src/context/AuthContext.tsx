@@ -8,6 +8,7 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
+  updateProfile: (data: { full_name?: string; phone?: string }) => Promise<User>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -54,8 +55,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
   }
 
+  async function updateProfile(data: { full_name?: string; phone?: string }) {
+    const { data: updated } = await api.patch<User>('/auth/me', data)
+    setUser(updated)
+    return updated
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   )
@@ -65,4 +72,4 @@ export function useAuth() {
   const ctx = useContext(AuthContext)
   if (!ctx) throw new Error('useAuth must be used within AuthProvider')
   return ctx
-}
+}

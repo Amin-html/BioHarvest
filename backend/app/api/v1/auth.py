@@ -4,7 +4,7 @@ from app.db.session import get_db
 from app.repositories.user_repository import UserRepository
 from app.repositories.refresh_token_repository import RefreshTokenRepository
 from app.services.auth_service import AuthService
-from app.schemas.user import UserRegisterIn, UserLoginIn, UserOut, TokenOut
+from app.schemas.user import UserRegisterIn, UserLoginIn, UserOut, TokenOut, UserProfileUpdateIn
 from app.core.dependencies import require_role, get_current_user
 from app.models.user import UserRole, User
 from app.core.config import settings
@@ -25,6 +25,14 @@ LOGIN_FAILURE_WINDOW = 15 * 60
 @router.get("/me", response_model=UserOut)
 async def get_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+@router.patch("/me", response_model=UserOut)
+async def update_me(
+    data: UserProfileUpdateIn,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    return await UserRepository(db).update_profile(current_user, data.model_dump(exclude_unset=True))
 
 @router.post("/register", response_model=UserOut,
              dependencies=[Depends(rate_limit("register", 10, 60 * 60))])

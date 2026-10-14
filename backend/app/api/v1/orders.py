@@ -12,6 +12,7 @@ from app.repositories.order_repository import OrderRepository
 from app.repositories.delivery_repository import DeliveryRepository
 from app.repositories.promo_code_repository import PromoCodeRepository
 from app.repositories.notification_repository import NotificationRepository  # <-- ДОБАВЛЕНО
+from app.repositories.address_repository import AddressRepository
 from app.schemas.order import OrderStatusUpdateIn
 
 router = APIRouter(prefix="/orders", tags=["orders"])
@@ -31,17 +32,19 @@ def get_order_service(db: AsyncSession = Depends(get_db)) -> OrderService:
         delivery_repo=DeliveryRepository(db),
         promo_repo=PromoCodeRepository(db),
         notification_repo=NotificationRepository(db),  # <-- ТЕПЕРЬ ПЕРЕДАЕТСЯ КОРРЕКТНО
+        address_repo=AddressRepository(db),
     )
 
 @router.post("/", response_model=OrderOut, status_code=status.HTTP_201_CREATED)
 async def checkout(
     delivery_method_id: int | None = Query(None),
     promo_code: str | None = Query(None),
+    address_id: int | None = Query(None),
     idempotency_key: str = Header(..., alias="Idempotency-Key"),
     current_user: User = Depends(get_current_user),
     service: OrderService = Depends(get_order_service),
 ):
-    return await service.checkout(current_user.id, idempotency_key, delivery_method_id, promo_code)
+    return await service.checkout(current_user.id, idempotency_key, delivery_method_id, promo_code, address_id)
 
 @router.get("/", response_model=list[OrderOut])
 async def list_my_orders(

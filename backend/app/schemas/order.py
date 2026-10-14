@@ -22,7 +22,8 @@ class OrderOut(BaseModel):
     total: float
     delivery_method_id: int | None
     delivery_price: float
+    delivery_address: str | None = None
     created_at: datetime
     items: list[OrderItemOut]
     promo_code_id: int | None
-    discount_total: float
+    discount_total: float

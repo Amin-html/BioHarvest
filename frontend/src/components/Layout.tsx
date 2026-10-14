@@ -27,6 +27,7 @@ export function Layout() {
             {user && (
               <>
                 <Link to="/orders" className="hover:text-emerald-600">Заказы</Link>
+                <Link to="/profile" className="hover:text-emerald-600">Профиль</Link>
                 <Link to="/wishlist" className="hover:text-emerald-600">
                   <Heart size={18} />
                 </Link>

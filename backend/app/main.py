@@ -13,6 +13,7 @@ from app.api.v1.notifications import router as notification_router
 from app.api.v1.wishlist import router as wishlist_router
 from app.api.v1.reviews import router as reviews_router, admin_router as admin_reviews_router
 from app.api.v1.dashboard import router as dashboard_router
+from app.api.v1.addresses import router as addresses_router
 
 
 app = FastAPI(title="BioHarvest")
@@ -40,6 +41,7 @@ app.include_router(wishlist_router, prefix="/api/v1")
 app.include_router(reviews_router, prefix="/api/v1")
 app.include_router(admin_reviews_router, prefix="/api/v1")
 app.include_router(dashboard_router, prefix="/api/v1")
+app.include_router(addresses_router, prefix="/api/v1")
 
 @app.get("/health/")
 async def health():

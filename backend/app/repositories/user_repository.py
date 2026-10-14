@@ -19,3 +19,14 @@ class UserRepository:
 
     async def get_by_id(self, user_id: int) -> User | None:
         return await self.db.get(User, user_id)
+
+    async def update_profile(self, user: User, data: dict) -> User:
+        # merge() гарантирует, что мы работаем с экземпляром, привязанным
+        # именно к self.db — даже если переданный user пришёл из другой
+        # сессии (например, из зависимости get_current_user).
+        user = await self.db.merge(user)
+        for key, value in data.items():
+            setattr(user, key, value)
+        await self.db.commit()
+        await self.db.refresh(user)
+        return user

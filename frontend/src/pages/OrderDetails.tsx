@@ -21,6 +21,7 @@ export function OrderDetailsPage() {
         ))}
       </div>
       <div className="text-sm text-gray-600 space-y-1">
+        {order.delivery_address && <p>Адрес доставки: {order.delivery_address}</p>}
         <p>Подытог: {order.subtotal} сом</p>
         {order.discount_total > 0 && <p>Скидка: -{order.discount_total} сом</p>}
         <p>Доставка: {order.delivery_price} сом</p>
@@ -28,4 +29,4 @@ export function OrderDetailsPage() {
       </div>
     </div>
   )
-}
+}

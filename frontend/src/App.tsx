@@ -18,6 +18,7 @@ import { AdminStockPage } from './pages/admin/AdminStock'
 import { AdminReviewsPage } from './pages/admin/AdminReviews'
 import { AdminDashboardPage } from './pages/admin/AdminDashboard'
 import { WishlistPage } from './pages/Wishlist'
+import { ProfilePage } from './pages/Profile'
 
 export default function App() {
   return (
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="/orders/:id" element={<OrderDetailsPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
 
         <Route element={<ProtectedRoute roles={['ADMIN', 'STAFF']} />}>

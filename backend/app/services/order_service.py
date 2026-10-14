@@ -8,6 +8,7 @@ from app.repositories.order_repository import OrderRepository
 from app.repositories.delivery_repository import DeliveryRepository
 from app.repositories.promo_code_repository import PromoCodeRepository
 from app.repositories.notification_repository import NotificationRepository
+from app.repositories.address_repository import AddressRepository
 
 VALID_TRANSITIONS = {
     "CREATED": {"AWAITING_DELIVERY", "CANCELLED"},
@@ -26,6 +27,7 @@ class OrderService:
         delivery_repo: DeliveryRepository,
         promo_repo: PromoCodeRepository,
         notification_repo: NotificationRepository,
+        address_repo: AddressRepository,
     ):
         self.cart_repo = cart_repo
         self.product_repo = product_repo
@@ -34,6 +36,7 @@ class OrderService:
         self.delivery_repo = delivery_repo
         self.promo_repo = promo_repo
         self.notification_repo = notification_repo
+        self.address_repo = address_repo
 
     async def checkout(
             self,
@@ -41,6 +44,7 @@ class OrderService:
             idempotency_key: str,
             delivery_method_id: int | None = None,
             promo_code: str | None = None,
+            address_id: int | None = None,
     ):
         existing = await self.order_repo.get_by_idempotency_key(idempotency_key)
         if existing:
@@ -56,6 +60,14 @@ class OrderService:
             if method is None:
                 raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid delivery method")
             delivery_price = float(method.price)
+
+        # Адрес замораживается текстом в момент заказа (как и снапшоты товаров),
+        # чтобы последующее редактирование/удаление адреса не искажало прошлые заказы.
+        delivery_address = None
+        if address_id is not None:
+            address = await self.address_repo.get_owned(user_id, address_id)
+            parts = [p for p in [address.full_address, address.city] if p]
+            delivery_address = ", ".join(parts)
 
         order_items_data = []
         subtotal = 0
@@ -92,6 +104,7 @@ class OrderService:
             promo_code_id=promo_id,
             discount_total=discount_total,
             items_data=order_items_data,
+            delivery_address=delivery_address,
         )
 
         await self.cart_repo.clear(cart.id)

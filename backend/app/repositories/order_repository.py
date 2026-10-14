@@ -31,7 +31,8 @@ class OrderRepository:
             self, user_id: int, idempotency_key: str, subtotal: float, total: float,
             delivery_method_id: int | None, delivery_price: float,
             promo_code_id: int | None, discount_total: float,
-            items_data: list[dict]
+            items_data: list[dict],
+            delivery_address: str | None = None,
     ) -> Order:
         order = Order(
             user_id=user_id,
@@ -42,6 +43,7 @@ class OrderRepository:
             delivery_price=delivery_price,
             promo_code_id=promo_code_id,
             discount_total=discount_total,
+            delivery_address=delivery_address,
         )
         order.items = [OrderItem(**data) for data in items_data]
         self.db.add(order)
@@ -61,4 +63,4 @@ class OrderRepository:
 
     async def get_all(self) -> list[Order]:
         result = await self.db.execute(select(Order).options(selectinload(Order.items)))
-        return list(result.scalars().all())
+        return list(result.scalars().all())

@@ -25,6 +25,7 @@ class Order(Base):
 
     delivery_method_id: Mapped[int | None] = mapped_column(ForeignKey("delivery_methods.id"), nullable=True)
     delivery_price: Mapped[float] = mapped_column(Numeric(10, 2), default=0, server_default="0")
+    delivery_address: Mapped[str | None] = mapped_column(default=None)
 
     promo_code_id: Mapped[int | None] = mapped_column(ForeignKey("promo_codes.id"), nullable=True)
-    discount_total: Mapped[float] = mapped_column(Numeric(10, 2), default=0, server_default="0")
+    discount_total: Mapped[float] = mapped_column(Numeric(10, 2), default=0, server_default="0")
