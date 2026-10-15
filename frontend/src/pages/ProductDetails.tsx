@@ -4,8 +4,9 @@ import { useProduct } from '../hooks/useCatalog'
 import { useAddToCart } from '../hooks/useCart'
 import { useWishlist, useAddToWishlist, useRemoveFromWishlist } from '../hooks/useWishlist'
 import { useProductReviews, useCreateReview } from '../hooks/useReviews'
+import { usePriceTiers } from '../hooks/usePriceTiers'
 import { useAuth } from '../context/AuthContext'
-import { ImageOff, ChevronLeft, Heart, Star } from 'lucide-react'
+import { ImageOff, ChevronLeft, Heart, Star, Boxes } from 'lucide-react'
 
 export function ProductDetailsPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -15,6 +16,7 @@ export function ProductDetailsPage() {
   const navigate = useNavigate()
   const [activeImage, setActiveImage] = useState(0)
 
+  const { data: priceTiers } = usePriceTiers(product?.id)
   const { data: wishlist } = useWishlist()
   const addToWishlist = useAddToWishlist()
   const removeFromWishlist = useRemoveFromWishlist()
@@ -88,7 +90,29 @@ export function ProductDetailsPage() {
               <Heart size={24} fill={inWishlist ? 'currentColor' : 'none'} />
             </button>
           </div>
-          <p className="text-2xl font-bold text-cyan-600 mb-4">{product.price} сом</p>
+                    <p className="text-2xl font-bold text-cyan-600 mb-4">{product.price} сом</p>
+
+          {priceTiers && priceTiers.length > 0 && (
+            <div className="border rounded-xl p-3 bg-emerald-50 mb-4 max-w-xs">
+              <p className="text-sm font-medium text-emerald-700 flex items-center gap-1.5 mb-2">
+                <Boxes size={16} />
+                Оптовые цены
+              </p>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between text-gray-500">
+                  <span>от 1 шт</span>
+                  <span>{product.price} сом/шт</span>
+                </div>
+                {priceTiers.map((t) => (
+                  <div key={t.id} className="flex justify-between font-medium text-emerald-700">
+                    <span>от {t.min_quantity} шт</span>
+                    <span>{t.unit_price} сом/шт</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {product.description && (
             <p className="text-gray-600 whitespace-pre-line mb-6">{product.description}</p>
           )}

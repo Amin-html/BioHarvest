@@ -29,6 +29,7 @@ from app.models.promo_code import PromoCode
 from app.models.notification import Notification
 from app.models.crop import Crop
 from app.models.fertilizer_norm import FertilizerNorm
+from app.models.product_price_tier import ProductPriceTier
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

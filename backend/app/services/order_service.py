@@ -9,6 +9,7 @@ from app.repositories.delivery_repository import DeliveryRepository
 from app.repositories.promo_code_repository import PromoCodeRepository
 from app.repositories.notification_repository import NotificationRepository
 from app.repositories.address_repository import AddressRepository
+from app.repositories.price_tier_repository import PriceTierRepository
 
 VALID_TRANSITIONS = {
     "CREATED": {"AWAITING_DELIVERY", "CANCELLED"},
@@ -28,6 +29,7 @@ class OrderService:
         promo_repo: PromoCodeRepository,
         notification_repo: NotificationRepository,
         address_repo: AddressRepository,
+        price_tier_repo: PriceTierRepository,
     ):
         self.cart_repo = cart_repo
         self.product_repo = product_repo
@@ -37,6 +39,7 @@ class OrderService:
         self.promo_repo = promo_repo
         self.notification_repo = notification_repo
         self.address_repo = address_repo
+        self.price_tier_repo = price_tier_repo
 
     async def checkout(
             self,
@@ -78,12 +81,18 @@ class OrderService:
                     status.HTTP_400_BAD_REQUEST,
                     f"PRODUCT_NOT_FOUND: product_id={item.product_id}",
                 )
-            line_total = float(product.price) * item.quantity
+            # Оптовая цена (B2B): если для товара настроены уровни цен и
+            # количество в корзине достаточно — используем цену уровня,
+            # иначе обычную розничную цену товара.
+            unit_price = await self.price_tier_repo.get_effective_unit_price(
+                product.id, item.quantity, float(product.price)
+            )
+            line_total = unit_price * item.quantity
             subtotal += line_total
             order_items_data.append({
                 "product_id": product.id,
                 "product_name_snapshot": product.name,
-                "unit_price_snapshot": product.price,
+                "unit_price_snapshot": unit_price,
                 "quantity": item.quantity,
                 "line_total": line_total,
             })

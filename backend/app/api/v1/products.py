@@ -6,6 +6,8 @@ from app.repositories.product_image_repository import ProductImageRepository
 from app.services.product_service import ProductService
 from app.schemas.product import ProductOut, ProductCreateIn, ProductUpdateIn, ProductListOut
 from app.schemas.product_image import ProductImageOut, ProductImageCreateIn
+from app.repositories.price_tier_repository import PriceTierRepository
+from app.schemas.price_tier import PriceTierOut
 from app.core.dependencies import require_role
 from app.models.user import UserRole
 
@@ -38,6 +40,10 @@ async def search_products(
 async def get_product_by_slug(slug: str, db: AsyncSession = Depends(get_db)):
     service = ProductService(ProductRepository(db))
     return await service.get_by_slug(slug)
+
+@router.get("/{product_id}/price-tiers", response_model=list[PriceTierOut])
+async def list_price_tiers(product_id: int, db: AsyncSession = Depends(get_db)):
+    return await PriceTierRepository(db).list_for_product(product_id)
 
 @router.post("/", response_model=ProductOut, status_code=201,
              dependencies=[Depends(require_role(UserRole.STAFF, UserRole.ADMIN))])
@@ -74,4 +80,4 @@ async def add_product_image(product_id: int, data: ProductImageCreateIn, db: Asy
 @router.delete("/images/{image_id}", status_code=status.HTTP_204_NO_CONTENT,
                dependencies=[Depends(require_role(UserRole.STAFF, UserRole.ADMIN))])
 async def delete_product_image(image_id: int, db: AsyncSession = Depends(get_db)):
-    await ProductImageRepository(db).delete(image_id)
+    await ProductImageRepository(db).delete(image_id)

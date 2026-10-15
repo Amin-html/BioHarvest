@@ -197,3 +197,10 @@ export interface FertilizerCalculation {
   area_sotka: number
   items: FertilizerCalculationItem[]
 }
+
+export interface PriceTier {
+  id: number
+  product_id: number
+  min_quantity: number
+  unit_price: number
+}

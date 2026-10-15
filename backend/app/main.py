@@ -15,6 +15,7 @@ from app.api.v1.reviews import router as reviews_router, admin_router as admin_r
 from app.api.v1.dashboard import router as dashboard_router
 from app.api.v1.addresses import router as addresses_router
 from app.api.v1.fertilizer import router as fertilizer_router
+from app.api.v1.admin_price_tiers import router as admin_price_tiers_router
 
 
 app = FastAPI(title="BioHarvest")
@@ -44,6 +45,7 @@ app.include_router(admin_reviews_router, prefix="/api/v1")
 app.include_router(dashboard_router, prefix="/api/v1")
 app.include_router(addresses_router, prefix="/api/v1")
 app.include_router(fertilizer_router, prefix="/api/v1")
+app.include_router(admin_price_tiers_router, prefix="/api/v1")
 
 @app.get("/health/")
 async def health():
